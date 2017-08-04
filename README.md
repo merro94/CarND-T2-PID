@@ -2,6 +2,50 @@
 Self-Driving Car Engineer Nanodegree Program
 
 ---
+## PID Controller
+
+The P, or "proportional", component had the most directly observable effect on the car's behavior. It causes the car to steer proportional (and opposite) to the car's distance from the lane center (which is the CTE). However, it does cause the car to oscillation if it is solely considered in the steering controller.
+
+The D, or "differential", component counteracts the P component's tendency to ring and overshoot the center line. It makes the car to drive more smoothly.
+
+The I, or "integral", component counteracts a bias in the CTE which prevents the P-D controller from reaching the center line. This one cannot be set with a large value as it will quickly make the car circle and not drive straight down the road.
+
+For this project I used two PID controllers. One to control the steering angle and the other the throttle.
+
+To tune a PID I used the following steps manually:
+
+1. Set all parameters to zero.
+2. Increase the P gain until the response to a disturbance is steady oscillation.
+3. Increase the D gain until the the oscillations go away (i.e. it's critically damped).
+4. Repeat steps 2 and 3 until increasing the D gain does not stop the oscillations.
+5. Set P and D to the last stable values.
+6. Increase the I gain until it brings you to the setpoint with the number of oscillations desired.
+
+The steering PID class was initialized with the following values
+```
+double Kp = 0.13;  // proportional coefficient
+double Ki = 0.0002;  // integral coefficient
+double Kd = 4;  // differential coefficient
+```
+
+I also implemented a throttle controller to maximize the car's speed around the track. Without it and when using a constant throttle value of 0.3, the car can only drive with max speed of ~35. The throttle PID is also fed with CTE. The intuition is that when CTE is small, the total error is small and the car can run faster, and when CTE is larger and the total error is larger and the car should reduce speed and adjust to make it back to the track. So the I component is set to zero as it will grow indefinitely.
+
+The throttle PID class was initialized with the following values
+
+```
+double Kp = 0.3;  // proportional coefficient
+double Ki = 0.0;  // integral coefficient
+double Kd = 0.02;  // differential coefficient
+```
+The throttle value is calculated with the following formula, with the target throttle is 0.6
+
+```
+throttle_value = 0.6 - pid_t.TotalError();
+```
+With both controllers, the car can drive around the loops with maximum speed at ~65.
+
+
+Ref: https://robotics.stackexchange.com/questions/167/what-are-good-strategies-for-tuning-pid-loops
 
 ## Dependencies
 
